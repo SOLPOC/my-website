@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ind.xyz.mywebsite.mapper.BlogMapper">
+    <!-- 增加Blog -->
+    <insert id="save" parameterType="ind.xyz.mywebsite.domain.Blog">
+        INSERT INTO t_blog (id, author, title, content, type, url, category, language, tag, create_time, update_time)
+        VALUES (#{id}, #{author}, #{title}, #{content}, #{type}, #{url}, #{category}, #{language}, #{tag}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 删除Blog -->
+    <delete id="remove" parameterType="String">
+        DELETE FROM blog WHERE id = #{id}
+    </delete>
+
+    <!-- 更新Blog -->
+    <update id="modify" parameterType="ind.xyz.mywebsite.domain.Blog">
+        UPDATE blog
+        SET
+            author = #{author},
+            title = #{title},
+            content = #{content},
+            type = #{type},
+            url = #{url},
+            category = #{category},
+            language = #{language},
+            tag = #{tag},
+            updateTime = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 查询单个Blog -->
+    <select id="getById" parameterType="String" resultType="ind.xyz.mywebsite.domain.Blog">
+        SELECT * FROM blog WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有Blog -->
+    <select id="getAll" resultType="ind.xyz.mywebsite.domain.Blog">
+        SELECT * FROM blog
+    </select>
+
+    <select id="get" parameterType="ind.xyz.mywebsite.domain.Blog" resultType="ind.xyz.mywebsite.domain.Blog">
+        SELECT * FROM t_blog
+        WHERE 1=1
+        <if test="type != null and type != ''">
+            AND type = #{type}
+        </if>
+        <if test="category != null and category != ''">
+            AND category = #{category}
+        </if>
+        <if test="language != null and language != ''">
+            AND language = #{language}
+        </if>
+        <if test="createTime != null">
+            AND createTime = #{createTime}
+        </if>
+        <if test="tag != null and tag != ''">
+            AND tag = #{tag}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ind.xyz.mywebsite.mapper.ResourceMapper">
+    <select id="getResources" resultType="ind.xyz.mywebsite.domain.Resource" parameterType="ind.xyz.mywebsite.domain.Resource">
+        SELECT * FROM t_resource
+        WHERE 1=1
+        <if test="type != null">
+            AND type = #{type}
+        </if>
+        <if test="name != null">
+            AND name = #{name}
+        </if>
+        <if test="uploadTime != null">
+            AND upload_time = #{uploadTime}
+        </if>
+    </select>
+
+    <insert id="insertResource" parameterType="ind.xyz.mywebsite.domain.Resource">
+            INSERT INTO t_resource (id, name, size, state, encryption_key, remark, url, type, upload_time)
+            VALUES (#{id}, #{name}, #{size}, #{state}, #{encryptionKey}, #{remark}, #{url}, #{type}, #{uploadTime})
+    </insert>
+
+    <delete id="deleteResourceById" parameterType="String">
+        DELETE FROM t_resource WHERE id = #{id}
+    </delete>
+
+    <update id="updateResource" parameterType="ind.xyz.mywebsite.domain.Resource">
+        UPDATE t_resource SET name = #{name}, size = #{size}, remark = #{remark}, url = #{url}, type = #{type}, upload_time = #{uploadTime}
+        WHERE id = #{id}
+    </update>
+
+    <select id="getResourceById" resultType="ind.xyz.mywebsite.domain.Resource" parameterType="String">
+        SELECT * FROM t_resource WHERE id = #{id}
+    </select>
+
+</mapper>

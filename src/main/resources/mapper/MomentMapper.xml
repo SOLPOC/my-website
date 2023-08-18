@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ind.xyz.mywebsite.mapper.MomentMapper">
+    <select id="getAll" resultType="ind.xyz.mywebsite.domain.Moment">
+        SELECT * FROM t_moment;
+    </select>
+
+    <insert id="save" parameterType="ind.xyz.mywebsite.domain.Moment">
+            INSERT INTO t_moment (id, content, emotion, location, timezone, create_time, update_time)
+            VALUES (
+            <if test="id != null">#{id},</if>
+            <if test="content != null">#{content},</if>
+            <if test="emotion != null">#{emotion},</if>
+            <if test="location != null">#{location},</if>
+            <if test="timezone != null">#{timezone},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime}</if>
+            )
+    </insert>
+
+    <select id="getMomentById" parameterType="String" resultType="ind.xyz.mywebsite.domain.Moment">
+        SELECT * FROM t_moment WHERE id = #{id}
+    </select>
+
+    <update id="modify" parameterType="ind.xyz.mywebsite.domain.Moment">
+        UPDATE t_moment SET content = #{content}, emotion = #{emotion}, location = #{location},
+                          timezone = #{timezone}, update_time = #{updateTime} WHERE id = #{id}
+    </update>
+
+    <delete id="remove" parameterType="String">
+    DELETE FROM t_moment WHERE id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,205 @@
+package ind.xyz.mywebsite.backup;
+
+
+    public void upload3(){
+        String url = "http://example.com/upload";
+        String charset = "UTF-8";
+        String param = "value";
+        File textFile = new File("/path/to/file.txt");
+        File binaryFile = new File("/path/to/file.bin");
+        String boundary = Long.toHexString(System.currentTimeMillis()); // Just generate some unique random value.
+        String CRLF = "\r\n"; // Line separator required by multipart/form-data.
+
+        URLConnection connection = new URL(url).openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+        try (
+                OutputStream output = connection.getOutputStream();
+                PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, charset), true);
+        ) {
+            // Send normal param.
+            writer.append("--" + boundary).append(CRLF);
+            writer.append("Content-Disposition: form-data; name=\"param\"").append(CRLF);
+            writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF);
+            writer.append(CRLF).append(param).append(CRLF).flush();
+
+            // Send text file.
+            writer.append("--" + boundary).append(CRLF);
+            writer.append("Content-Disposition: form-data; name=\"textFile\"; filename=\"" + textFile.getName() + "\"").append(CRLF);
+            writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF); // Text file itself must be saved in this charset!
+            writer.append(CRLF).flush();
+            Files.copy(textFile.toPath(), output);
+            output.flush(); // Important before continuing with writer!
+            writer.append(CRLF).flush(); // CRLF is important! It indicates end of boundary.
+
+            // Send binary file.
+            writer.append("--" + boundary).append(CRLF);
+            writer.append("Content-Disposition: form-data; name=\"binaryFile\"; filename=\"" + binaryFile.getName() + "\"").append(CRLF);
+            writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(binaryFile.getName())).append(CRLF);
+            writer.append("Content-Transfer-Encoding: binary").append(CRLF);
+            writer.append(CRLF).flush();
+            Files.copy(binaryFile.toPath(), output);
+            output.flush(); // Important before continuing with writer!
+            writer.append(CRLF).flush(); // CRLF is important! It indicates end of boundary.
+
+            // End of multipart/form-data.
+            writer.append("--" + boundary + "--").append(CRLF).flush();
+        }
+
+ Request is lazily fired whenever you need to obtain information about response.
+        int responseCode = ((HttpURLConnection) connection).getResponseCode();
+        System.out.println(responseCode); // Should be 200
+    }
+
+        private static final String FAR_SERVICE_DIR = "http://13.113.66.74:80/usr/resource";//远程服务器接受文件的路由
+        private static final long yourMaxRequestSize = 10000000;
+
+
+        public String upload(HttpServletRequest request,HttpServletResponse response,@RequestParam("file") MultipartFile multiFile) throws Exception {
+            // 判断enctype属性是否为multipart/form-data
+            boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+            if (!isMultipart)
+                throw new IllegalArgumentException(
+                        "上传内容不是有效的multipart/form-data类型.");
+
+            // Create a factory for disk-based file items
+            DiskFileItemFactory factory = new DiskFileItemFactory();
+
+            // Create a new file upload handler
+            ServletFileUpload upload = new ServletFileUpload(factory);
+
+            // Parse the request
+            List<FileItem> items = upload.parseRequest(request);
+
+            Iterator iter = items.iterator();
+            while (iter.hasNext()) {
+                FileItem item = (FileItem) iter.next();
+
+                if (item.isFormField()) {
+                    // 如果是普通表单字段
+                    String name = item.getFieldName();
+                    String value = item.getString();
+                    // ...
+                } else {
+                    // 如果是文件字段
+                    String fieldName = item.getFieldName();
+                    String fileName = item.getName();
+                    String contentType = item.getContentType();
+                    boolean isInMemory = item.isInMemory();
+                    long sizeInBytes = item.getSize();
+                    // ...
+
+                    //上传到远程服务器
+                    InputStream uploadedStream = item.getInputStream();
+                    HashMap<String, InputStream> files = new HashMap<String, InputStream>();
+                    files.put(fileName, uploadedStream);
+                    uploadToFarService(files);
+                    uploadedStream.close();
+                }
+            }
+            return "redirect:/";
+        }
+
+        public void uploadToFarService(HashMap<String, InputStream> files) {
+            try {
+                String BOUNDARY = "---------7d4a6d158c9"; // 定义数据分隔线
+                URL url = new URL(FAR_SERVICE_DIR);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                // 发送POST请求必须设置如下两行
+                conn.setDoOutput(true);
+                conn.setDoInput(true);
+                conn.setUseCaches(false);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("connection", "Keep-Alive");
+                conn.setRequestProperty("user-agent",
+                        "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
+                conn.setRequestProperty("Charsert", "UTF-8");
+                conn.setRequestProperty("Content-Type",
+                        "multipart/form-data; boundary=" + BOUNDARY);
+
+                OutputStream out = new DataOutputStream(conn.getOutputStream());
+                byte[] end_data = ("\r\n--" + BOUNDARY + "--\r\n").getBytes();// 定义最后数据分隔线
+                Iterator iter = files.entrySet().iterator();
+                int i=0;
+                while (iter.hasNext()) {
+                    i++;
+                    Map.Entry entry = (Map.Entry) iter.next();
+                    String key = (String) entry.getKey();
+                    InputStream val = (InputStream) entry.getValue();
+                    String fname = key;
+                    File file = new File(fname);
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("--");
+                    sb.append(BOUNDARY);
+                    sb.append("\r\n");
+                    sb.append("Content-Disposition: form-data;name=\"file" + i
+                            + "\";filename=\"" + key + "\"\r\n");
+                    sb.append("Content-Type:application/octet-stream\r\n\r\n");
+
+                    byte[] data = sb.toString().getBytes();
+                    out.write(data);
+                    DataInputStream in = new DataInputStream(val);
+                    int bytes = 0;
+                    byte[] bufferOut = new byte[1024];
+                    while ((bytes = in.read(bufferOut)) != -1) {
+                        out.write(bufferOut, 0, bytes);
+                    }
+                    out.write("\r\n".getBytes()); // 多个文件时，二个文件之间加入这个
+                    in.close();
+                }
+                out.write(end_data);
+                out.flush();
+                out.close();
+
+                // 定义BufferedReader输入流来读取URL的响应
+                BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        conn.getInputStream(), "UTF-8"));
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+
+            } catch (Exception e) {
+                System.out.println("发送POST请求出现异常！" + e);
+                e.printStackTrace();
+            }
+        }
+
+         public static boolean uploadToServer(MultipartFile multiFile, String fileDirectory, String filename){
+                OutputStream os = null;
+                InputStream bis = null;
+                boolean flag = false;
+                String url="http://13.113.66.74:80/usr/resource";
+                try {
+                    URL u = new URL(url);
+                    HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+                    connection.setDoOutput(true);
+                    connection.setRequestMethod("POST");
+                    connection.setDoInput(true);
+                    connection.connect();
+                    os =connection.getOutputStream();
+                    byte[] buf = new byte[1024];
+                    int size;
+                    File file=new File("C:/Users/wyf/desktop/" + filename);
+                    bis=new FileInputStream(file);
+                    while ((size = bis.read(buf)) != -1) {
+                        os.write(buf, 0, size);
+                    }
+                    flag = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (bis != null) {
+                            bis.close();
+                        }
+                        if (os != null) {
+                            os.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return flag;
+            }
