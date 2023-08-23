@@ -4,17 +4,14 @@ import ind.xyz.mywebsite.config.FileTransferProperty;
 import ind.xyz.mywebsite.domain.Resource;
 import ind.xyz.mywebsite.mapper.ResourceMapper;
 import ind.xyz.mywebsite.service.ResourceService;
+import ind.xyz.mywebsite.util.file.FileVerifyUtil;
 import ind.xyz.mywebsite.util.file.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,13 +29,14 @@ public class ResourceServiceImpl implements ResourceService {
     private FileTransferProperty fileTransferProperty;
 
     @Override
-    public void addResource(Resource resource, MultipartFile multipartFile) {
+    public void addResource(Resource resource, MultipartFile multipartFile) throws Exception {
         String id=UUID.randomUUID().toString();
         resource.setId(id);
         resource.setName(multipartFile.getOriginalFilename());
         resource.setSize(getSizeFromMultipartFile(multipartFile));
         resource.setType(multipartFile.getContentType());
         resource.setUploadTime(LocalDateTime.now());
+        resource.setVerification(FileVerifyUtil.getShaFromInputStream(multipartFile.getInputStream()));
         String filename=id+multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
         resource.setUrl(fileTransferProperty.getResourceDirectory()+"/"+filename);
         boolean flag = FileUtil.uploadToServer(multipartFile, fileTransferProperty.getResourceDirectory(), filename);
@@ -66,7 +64,11 @@ public class ResourceServiceImpl implements ResourceService {
         return resourceMapper.getResources(resource);
     }
 
-
+    /**
+     * The size in resource has unit
+     * @param multipartFile
+     * @return
+     */
     public String getSizeFromMultipartFile(MultipartFile multipartFile){
             long size= multipartFile.getSize();
             if (size <= 0) {
@@ -77,7 +79,7 @@ public class ResourceServiceImpl implements ResourceService {
             return new DecimalFormat("#,###.##").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 
-    public boolean download( HttpServletRequest request, HttpServletResponse response,String id){
+    public boolean download(HttpServletRequest request, HttpServletResponse response,String id){
         Resource resource = getResourceById(id);
             fileService.download(
                     request,

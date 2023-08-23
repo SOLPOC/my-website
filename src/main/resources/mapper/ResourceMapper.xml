@@ -19,8 +19,8 @@
     </select>
 
     <insert id="insertResource" parameterType="ind.xyz.mywebsite.domain.Resource">
-            INSERT INTO t_resource (id, name, size, state, encryption_key, remark, url, type, upload_time)
-            VALUES (#{id}, #{name}, #{size}, #{state}, #{encryptionKey}, #{remark}, #{url}, #{type}, #{uploadTime})
+            INSERT INTO t_resource (id, name, size, state, encryption_key, remark, url, type,verification,upload_time)
+            VALUES (#{id}, #{name}, #{size}, #{state}, #{encryptionKey}, #{remark}, #{url}, #{type},#{verification}, #{uploadTime})
     </insert>
 
     <delete id="deleteResourceById" parameterType="String">

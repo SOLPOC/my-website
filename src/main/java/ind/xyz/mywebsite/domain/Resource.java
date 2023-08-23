@@ -15,8 +15,9 @@ public class Resource {
     private String id;
     private String name;
     private String size;
-    private int state; // 0 private 1 public 2 encryption
+    private int state; // -1 private 1 public 0 encryption
     public String encryptionKey;
+    public String verification;
     private String remark;
     private String url;
     private String type;

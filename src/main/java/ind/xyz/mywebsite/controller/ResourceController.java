@@ -37,7 +37,7 @@ public class ResourceController {
     }
 
     @PostMapping(value="/save",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void insertResource(@RequestPart("data")String resourceString, @RequestPart("file") MultipartFile multipartFile) throws IOException {
+    public void insertResource(@RequestPart("data")String resourceString, @RequestPart("file") MultipartFile multipartFile) throws Exception {
         resourceService.addResource(JsonUtil.fromJson(resourceString, Resource.class),multipartFile);
     }
 

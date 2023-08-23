@@ -3,10 +3,11 @@ package ind.xyz.mywebsite.service;
 import ind.xyz.mywebsite.domain.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ResourceService {
-    void addResource(Resource resource, MultipartFile multipartFile);
+    void addResource(Resource resource, MultipartFile multipartFile) throws Exception;
 
     void deleteResourceById(String id);
 
