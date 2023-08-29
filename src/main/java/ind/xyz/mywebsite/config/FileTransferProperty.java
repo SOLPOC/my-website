@@ -29,4 +29,7 @@ public class FileTransferProperty {
     private String blogDirectory="";
 
     private String resourceDirectory="";
+    private String aesKey="";
+
+    private String tempDirectory="";
 }

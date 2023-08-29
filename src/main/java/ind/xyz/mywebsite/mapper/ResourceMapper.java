@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 public interface ResourceMapper {
-    void insertResource(Resource resource);
+    Integer insertResource(Resource resource);
 
     void deleteResourceById(String id);
 

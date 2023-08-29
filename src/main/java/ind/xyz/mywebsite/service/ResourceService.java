@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ResourceService {
-    void addResource(Resource resource, MultipartFile multipartFile) throws Exception;
+    boolean addResource(Resource resource, MultipartFile multipartFile) throws Exception;
 
     void deleteResourceById(String id);
 

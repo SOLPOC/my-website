@@ -22,7 +22,7 @@ public class FileUtil {
     /**
          * 上传文件
          *
-         * @param multiFile      文件
+         * @param inputStream      文件
          * @param fileDirectory     服务器上要存储文件的路径
          * @param filename 服务器上要存储的文件的名称
          * @return
@@ -59,6 +59,36 @@ public class FileUtil {
                 }
                 if (ins != null) {
                     ins.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    public static boolean saveToServer(StringBuffer stringBuffer, String fileDirectory, String filename) {
+        FileOutputStream outs = null;
+        try {
+            File file = new File(fileDirectory);
+            // 文件目录不存在则递归创建目录
+            if (!file.exists()) {
+                boolean mkdirs = file.mkdirs();
+                if (!mkdirs) {
+                    return false;
+                }
+            }
+            //构建文件输出流
+            outs = new FileOutputStream("D:/test/"+fileDirectory + File.separator+filename);
+            outs.write(stringBuffer.toString().getBytes());
+            outs.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (outs != null) {
+                    outs.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();

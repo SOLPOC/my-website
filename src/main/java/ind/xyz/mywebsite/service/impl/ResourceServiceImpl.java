@@ -4,6 +4,7 @@ import ind.xyz.mywebsite.config.FileTransferProperty;
 import ind.xyz.mywebsite.domain.Resource;
 import ind.xyz.mywebsite.mapper.ResourceMapper;
 import ind.xyz.mywebsite.service.ResourceService;
+import ind.xyz.mywebsite.util.file.FileEncryptUtil;
 import ind.xyz.mywebsite.util.file.FileVerifyUtil;
 import ind.xyz.mywebsite.util.file.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,8 +30,15 @@ public class ResourceServiceImpl implements ResourceService {
     @Autowired
     private FileTransferProperty fileTransferProperty;
 
+    /**
+     * Fill in Resource and save file
+     * @param resource
+     * @param multipartFile
+     * @return
+     * @throws Exception
+     */
     @Override
-    public void addResource(Resource resource, MultipartFile multipartFile) throws Exception {
+    public boolean addResource(Resource resource, MultipartFile multipartFile) throws Exception {
         String id=UUID.randomUUID().toString();
         resource.setId(id);
         resource.setName(multipartFile.getOriginalFilename());
@@ -39,9 +48,13 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setVerification(FileVerifyUtil.getShaFromInputStream(multipartFile.getInputStream()));
         String filename=id+multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
         resource.setUrl(fileTransferProperty.getResourceDirectory()+"/"+filename);
-        boolean flag = FileUtil.uploadToServer(multipartFile, fileTransferProperty.getResourceDirectory(), filename);
-        resourceMapper.insertResource(resource);
-
+        StringBuffer stringBuffer = FileEncryptUtil.encryptByAES(multipartFile.getInputStream());
+        boolean flag = FileUtil.saveToServer(stringBuffer, fileTransferProperty.getResourceDirectory(), filename);
+        if(!flag){
+            return false;
+        }
+        Integer integer = resourceMapper.insertResource(resource);
+        return integer==1;
     }
 
     @Override
@@ -65,7 +78,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     /**
-     * The size in resource has unit
+     * The size in Resource has unit
      * @param multipartFile
      * @return
      */
@@ -79,7 +92,7 @@ public class ResourceServiceImpl implements ResourceService {
             return new DecimalFormat("#,###.##").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 
-    public boolean download(HttpServletRequest request, HttpServletResponse response,String id){
+/*    public void download(HttpServletRequest request, HttpServletResponse response,String id){
         Resource resource = getResourceById(id);
             fileService.download(
                     request,
@@ -88,6 +101,28 @@ public class ResourceServiceImpl implements ResourceService {
                     resource.getUrl().substring(resource.getUrl().lastIndexOf("/")),
                     resource.getName()
                     );
-        return true;
+    }*/
+
+    /**
+     * donwlaod encrypted file, decrypt to tempDir -> download -> remove
+     * @param request
+     * @param response
+     * @param id
+     */
+        public void download(HttpServletRequest request, HttpServletResponse response,String id) throws Exception {
+            Resource resource = getResourceById(id);
+            // TODO
+            File file=new File("D:/test/"+fileTransferProperty.getResourceDirectory()+"/"+resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
+            StringBuffer stringBuffer = FileEncryptUtil.decryptByAES(new FileInputStream(file));
+            File temp=new File(fileTransferProperty.getTempDirectory()+"/"+resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
+            FileUtil.saveToServer(stringBuffer,fileTransferProperty.getTempDirectory(),resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
+            fileService.download(
+                    request,
+                    response,
+                    fileTransferProperty.getResourceDirectory(),
+                    resource.getUrl().substring(resource.getUrl().lastIndexOf("/")),
+                    resource.getName()
+                    );
+            temp.delete();
     }
 }

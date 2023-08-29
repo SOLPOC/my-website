@@ -37,12 +37,13 @@ public class ResourceController {
     }
 
     @PostMapping(value="/save",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void insertResource(@RequestPart("data")String resourceString, @RequestPart("file") MultipartFile multipartFile) throws Exception {
-        resourceService.addResource(JsonUtil.fromJson(resourceString, Resource.class),multipartFile);
+    public Result insertResource(@RequestPart("data")String resourceString, @RequestPart("file") MultipartFile multipartFile) throws Exception {
+        boolean flag = resourceService.addResource(JsonUtil.fromJson(resourceString, Resource.class), multipartFile);
+        return flag? Result.success(): Result.fail();
     }
 
     @GetMapping("/download/{id}")
-    public void download(@PathVariable String id, HttpServletRequest request, HttpServletResponse response){
+    public void download(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws Exception {
          resourceService.download(request,response,id);
     }
 
