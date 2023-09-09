@@ -119,7 +119,7 @@ public class ResourceServiceImpl implements ResourceService {
             fileService.download(
                     request,
                     response,
-                    fileTransferProperty.getResourceDirectory(),
+                    fileTransferProperty.getTempDirectory(),
                     resource.getUrl().substring(resource.getUrl().lastIndexOf("/")),
                     resource.getName()
                     );

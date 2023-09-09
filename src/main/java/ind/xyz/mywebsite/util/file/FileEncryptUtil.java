@@ -126,29 +126,62 @@ public class FileEncryptUtil {
         int length = -1;
         StringBuffer sb = new StringBuffer();
         while ((length = inputStream.read(buffer, 0, 1024)) != -1) {
-            if (length<1024) { // Last chunk of data which can not be encrypted
-                for(int i=0;i<length;i++) {
-                    sb.append(buffer[i]);
+            System.out.println(length);
+/*            if (length<1024) { // Last chunk of data which can not be encrypted
+                // Set a mark to declare the last
+                for(int j=length;j<1024;j++){
+                    buffer[j]=32; // DEL
                 }
-            }
-            sb.append(encryptByAES(buffer));
+                System.out.println(buffer.length);
+            }*/
+            sb.append(new String(buffer));
         }
-       return sb;
+       return new StringBuffer( encryptByAES(sb.toString()));
     }
 
     public static  StringBuffer decryptByAES(InputStream inputStream) throws Exception {
-        byte buffer[] = new byte[1024];
+/*        byte buffer[] = new byte[1024];
         int length = -1;
-        StringBuffer sb = new StringBuffer();
-        while ((length = inputStream.read(buffer, 0, 1024)) != -1) {
-            if (length<1024) { // Last chunk of data which can not be encrypted
-                for(int i=0;i<length;i++) {
-                    sb.append(buffer[i]);
-                }
+        StringBuffer sb = new StringBuffer();*/
+      /*  while ((length = inputStream.read(buffer, 0, 1024)) != -1) {
+            System.out.println(length);
+//            if (buffer[1023]==127) { // Last chunk of data which can not be encrypted
+//                for(int i=0;i<length;i++) {
+//                    sb.append(new String(new byte[]{buffer[i]}));
+//                }
+//            }
+            sb.append(new String(buffer));
+        }*/
+        try {
+
+            // 使用InputStreamReader将InputStream转换为Reader
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+
+            // 使用BufferedReader包装InputStreamReader，以便一次读取一行
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+            String line;
+            StringBuilder stringBuilder = new StringBuilder();
+
+            // 逐行读取文件内容
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line);
             }
-            sb.append(decryptByAES(Base64.getDecoder().decode(buffer)));
+
+            // 关闭资源
+            bufferedReader.close();
+
+            // 获取读取的字符串
+            String fileContent = stringBuilder.toString();
+
+            System.out.println(fileContent);
+            String s = decryptByAES(fileContent);
+            s=s.trim();
+            return new StringBuffer(s);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return sb;
+        return null;
     }
 
 
