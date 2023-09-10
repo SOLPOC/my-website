@@ -125,4 +125,15 @@ public class ResourceServiceImpl implements ResourceService {
                     );
             temp.delete();
     }
+
+    public String  getImageUrl(String id) throws Exception {
+        Resource resource = getResourceById(id);
+        // TODO
+        File file=new File("D:/test/"+fileTransferProperty.getResourceDirectory()+"/"+resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
+        StringBuffer stringBuffer = FileEncryptUtil.decryptByAES(new FileInputStream(file));
+        File temp=new File(fileTransferProperty.getTempDirectory()+"/"+resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
+        FileUtil.saveToServer(stringBuffer,fileTransferProperty.getTempDirectory(),resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
+        // TODO
+        return     "D:/test/"+fileTransferProperty.getTempDirectory()+resource.getUrl().substring(resource.getUrl().lastIndexOf("/"));
+    }
 }

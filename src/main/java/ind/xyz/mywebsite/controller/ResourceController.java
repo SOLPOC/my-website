@@ -31,7 +31,7 @@ public class ResourceController {
     }
 
 
-    @GetMapping("/get")
+    @PostMapping("/get")
     public Result getResources(@RequestBody Resource resource) {
         return Result.success(resourceService.getResources(resource));
     }
@@ -45,6 +45,11 @@ public class ResourceController {
     @GetMapping("/download/{id}")
     public void download(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws Exception {
          resourceService.download(request,response,id);
+    }
+
+    @GetMapping("/getImageUrl/{id}")
+    public Result getImageUrl(@PathVariable String id) throws Exception {
+         return Result.success(resourceService.getImageUrl(id));
     }
 
 }
