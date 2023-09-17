@@ -67,7 +67,7 @@ public class FileUtil {
         return false;
     }
 
-    public static boolean saveToServer(StringBuffer stringBuffer, String fileDirectory, String filename) {
+    public static boolean saveToServer(String string, String fileDirectory, String filename) {
         FileOutputStream outs = null;
         try {
             File file = new File(fileDirectory);
@@ -80,7 +80,7 @@ public class FileUtil {
             }
             //构建文件输出流
             outs = new FileOutputStream("D:/test/"+fileDirectory + File.separator+filename);
-            outs.write(stringBuffer.toString().getBytes());
+            outs.write(string.getBytes());
             outs.close();
             return true;
         } catch (IOException e) {

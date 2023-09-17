@@ -2,9 +2,7 @@ package ind.xyz.mywebsite;
 
 import ind.xyz.mywebsite.domain.Moment;
 import ind.xyz.mywebsite.mapper.MomentMapper;
-import ind.xyz.mywebsite.util.file.FileEncryptUtil;
-import ind.xyz.mywebsite.util.file.FileUploadUtil;
-import ind.xyz.mywebsite.util.file.FileUtil;
+import ind.xyz.mywebsite.util.file.*;
 import ind.xyz.mywebsite.util.md.MdUtil;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -127,10 +125,18 @@ class MyWebsiteApplicationTests {
     @Test
     void test6() throws Exception {
         File file=new File("C:\\Users\\wyf\\desktop\\test.jpg");
-        StringBuffer stringBuffer = FileEncryptUtil.encryptByAES(new FileInputStream(file));
-        System.out.println(stringBuffer.toString());
-        String s = FileEncryptUtil.decryptByAES(stringBuffer.toString());
-        System.out.println(s);
+        String read = FileReadUtil.read(file);
+//        System.out.println(read);
+        System.out.println(read.length());
+        String string = FileAESUtil.encrypt(read);
+        System.out.println(string.length());
+        String decryption = FileAESUtil.decrypt(string);
+//        System.out.println(decryption.length());
+        System.out.println(decryption.equals(read));
+
+    }
+    @Test
+    void test7() throws Exception {
     }
 
 }

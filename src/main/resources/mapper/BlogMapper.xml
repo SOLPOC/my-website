@@ -32,13 +32,13 @@
     </update>
 
     <!-- 查询单个Blog -->
-    <select id="getById" parameterType="String" resultType="ind.xyz.mywebsite.domain.Blog">
-        SELECT * FROM blog WHERE id = #{id}
+    <select id="getBlogById" parameterType="String" resultType="ind.xyz.mywebsite.domain.Blog">
+        SELECT * FROM t_blog WHERE id = #{id}
     </select>
 
     <!-- 查询所有Blog -->
     <select id="getAll" resultType="ind.xyz.mywebsite.domain.Blog">
-        SELECT * FROM blog
+        SELECT * FROM t_blog
     </select>
 
     <select id="get" parameterType="ind.xyz.mywebsite.domain.Blog" resultType="ind.xyz.mywebsite.domain.Blog">

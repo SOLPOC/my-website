@@ -36,7 +36,7 @@ public class FileController {
 
     @GetMapping("/download/{filename}")
     public Result download(HttpServletRequest request, HttpServletResponse response, @PathVariable String filename) {
-        if (fileService.download(request, response,fileTransferProperty.getDirectory(), filename,null)) {
+        if (fileService.download(request, response,fileTransferProperty.getResourceDirectory(), filename,null)) {
             return Result.success();
         } else {
             return Result.fail();

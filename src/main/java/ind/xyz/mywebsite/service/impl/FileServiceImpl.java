@@ -41,7 +41,7 @@ public class FileServiceImpl {
             if (userAgent.contains("firefox")) {
                 filename = new String(filename.getBytes(), "ISO8859-1");
             } else {
-                filename = URLEncoder.encode(filename, "UTF-8");
+                filename = URLEncoder.encode(filename, "ISO8859-1"); // or UTF-8
             }
             //设置发送到客户端的响应的内容类型
             response.setContentType("application/download");

@@ -4,9 +4,8 @@ import ind.xyz.mywebsite.config.FileTransferProperty;
 import ind.xyz.mywebsite.domain.Resource;
 import ind.xyz.mywebsite.mapper.ResourceMapper;
 import ind.xyz.mywebsite.service.ResourceService;
-import ind.xyz.mywebsite.util.file.FileEncryptUtil;
-import ind.xyz.mywebsite.util.file.FileVerifyUtil;
-import ind.xyz.mywebsite.util.file.FileUtil;
+import ind.xyz.mywebsite.util.ConvertUtil;
+import ind.xyz.mywebsite.util.file.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,13 +45,16 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setType(multipartFile.getContentType());
         resource.setUploadTime(LocalDateTime.now());
         resource.setVerification(FileVerifyUtil.getShaFromInputStream(multipartFile.getInputStream()));
-        String filename=id+multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
-        resource.setUrl(fileTransferProperty.getResourceDirectory()+"/"+filename);
-        StringBuffer stringBuffer = FileEncryptUtil.encryptByAES(multipartFile.getInputStream());
-        boolean flag = FileUtil.saveToServer(stringBuffer, fileTransferProperty.getResourceDirectory(), filename);
-        if(!flag){
-            return false;
-        }
+        resource.setUrl(fileTransferProperty.getResourceDirectory()+"/"+id);
+        FileUtil.saveToServer(multipartFile.getInputStream(), fileTransferProperty.getResourceDirectory(),resource.getId());
+//        String read = FileReadUtil.read("D:/test/"+fileTransferProperty.getResourceDirectory()+"/"+"temp");
+//        System.out.println(read.length());
+//        String string = FileAESUtil.encrypt(read);
+//        System.out.println(string.length());
+//        boolean flag = FileUtil.saveToServer(string, fileTransferProperty.getResourceDirectory(), id);
+//        if(!flag){
+//            return false;
+//        }
         Integer integer = resourceMapper.insertResource(resource);
         return integer==1;
     }
@@ -104,7 +106,7 @@ public class ResourceServiceImpl implements ResourceService {
     }*/
 
     /**
-     * donwlaod encrypted file, decrypt to tempDir -> download -> remove
+     * donwlaod encrypted file, decrypted to tempDir -> download -> remove
      * @param request
      * @param response
      * @param id
@@ -112,28 +114,34 @@ public class ResourceServiceImpl implements ResourceService {
         public void download(HttpServletRequest request, HttpServletResponse response,String id) throws Exception {
             Resource resource = getResourceById(id);
             // TODO
-            File file=new File("D:/test/"+fileTransferProperty.getResourceDirectory()+"/"+resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
-            StringBuffer stringBuffer = FileEncryptUtil.decryptByAES(new FileInputStream(file));
-            File temp=new File(fileTransferProperty.getTempDirectory()+"/"+resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
-            FileUtil.saveToServer(stringBuffer,fileTransferProperty.getTempDirectory(),resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
+//            File file=new File("D:/test/"+fileTransferProperty.getResourceDirectory()+"/"+resource.getId());
+//            String encryption = FileReadUtil.read(file);
+//            System.out.println(encryption.length());
+//            String decryption = FileAESUtil.decrypt(encryption);
+//            System.out.println(decryption.length());
+//            File temp=new File(fileTransferProperty.getTempDirectory()+resource.getId());
+//            FileUtil.saveToServer(decryption,fileTransferProperty.getTempDirectory(),resource.getName());
             fileService.download(
                     request,
                     response,
-                    fileTransferProperty.getTempDirectory(),
-                    resource.getUrl().substring(resource.getUrl().lastIndexOf("/")),
+                    fileTransferProperty.getResourceDirectory(),
+                    resource.getId(),
                     resource.getName()
                     );
-            temp.delete();
+//            temp.delete();
     }
 
     public String  getImageUrl(String id) throws Exception {
         Resource resource = getResourceById(id);
         // TODO
-        File file=new File("D:/test/"+fileTransferProperty.getResourceDirectory()+"/"+resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
-        StringBuffer stringBuffer = FileEncryptUtil.decryptByAES(new FileInputStream(file));
-        File temp=new File(fileTransferProperty.getTempDirectory()+"/"+resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
-        FileUtil.saveToServer(stringBuffer,fileTransferProperty.getTempDirectory(),resource.getUrl().substring(resource.getUrl().lastIndexOf("/")));
+//        File file=new File("D:/test/"+fileTransferProperty.getResourceDirectory()+"/"+ resource.getId());
+//        String encryption = FileReadUtil.read(file);
+//        String decryption = FileEncryptUtil.decryptByAES(encryption);
+//        File temp=new File(fileTransferProperty.getTempDirectory()+"/"+ resource.getId());
+//        FileUtil.saveToServer(decryption,fileTransferProperty.getTempDirectory(), resource.getId());
         // TODO
-        return     "D:/test/"+fileTransferProperty.getTempDirectory()+resource.getUrl().substring(resource.getUrl().lastIndexOf("/"));
+//        return     "D:/test/"+fileTransferProperty.getResourceDirectory()+ "/"+resource.getId();
+        System.out.println(ConvertUtil.getImgStrToBase64("D:/test/"+fileTransferProperty.getResourceDirectory()+ "/"+resource.getId()));
+        return ConvertUtil.getImgStrToBase64("D:/test/"+fileTransferProperty.getResourceDirectory()+ "/"+resource.getId());
     }
 }

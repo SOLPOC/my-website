@@ -114,4 +114,11 @@ public class BlogServiceImpl implements BlogService {
         return blogs;
 
     }
+
+    public Blog getBlogById(String id){
+        SqlSession session = sqlSessionFactory.openSession();
+        BlogMapper mapper = session.getMapper(BlogMapper.class);
+        Blog blog = mapper.getBlogById(id);
+        return blog;
+    }
 }

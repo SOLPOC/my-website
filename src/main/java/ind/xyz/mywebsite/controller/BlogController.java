@@ -24,9 +24,15 @@ public class BlogController {
         blogService.save(JsonUtil.fromJson(blogString,Blog.class),multipartFiles);
     }
 
-    @GetMapping("/get")
+    @PostMapping("/get")
     public Result get(@RequestBody Blog blog){
         List<Blog> blogs = blogService.get(blog);
         return Result.success(blogs);
+    }
+
+    @GetMapping("/getBlogById/{id}")
+    public Result getBlogById(@PathVariable String id){
+        Blog blog = blogService.getBlogById(id);
+        return Result.success(blog);
     }
 }

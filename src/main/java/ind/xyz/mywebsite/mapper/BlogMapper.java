@@ -9,4 +9,6 @@ public interface BlogMapper {
     public void save(Blog blog);
     List<Blog> getAll();
     List<Blog> get(Blog blog);
+
+    Blog getBlogById(String id);
 }
