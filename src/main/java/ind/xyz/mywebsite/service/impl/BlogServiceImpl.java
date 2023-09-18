@@ -10,6 +10,7 @@ import ind.xyz.mywebsite.mapper.MomentMapper;
 import ind.xyz.mywebsite.service.BlogService;
 import ind.xyz.mywebsite.util.ConvertUtil;
 import ind.xyz.mywebsite.util.file.FileUtil;
+import ind.xyz.mywebsite.util.md.Md2HtmlUtil;
 import ind.xyz.mywebsite.util.md.MdUtil;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -108,6 +109,7 @@ public class BlogServiceImpl implements BlogService {
             // Turn content into html if .md
             if(x.getType().equals(".md")){
                 String html = MdUtil.MdToHtmlForApiDoc(x.getContent());
+                System.out.println(html);
                 x.setContent(html);
             }
         });
@@ -119,6 +121,11 @@ public class BlogServiceImpl implements BlogService {
         SqlSession session = sqlSessionFactory.openSession();
         BlogMapper mapper = session.getMapper(BlogMapper.class);
         Blog blog = mapper.getBlogById(id);
+        if(blog.getType().equals(".md")){
+            String html = MdUtil.MdToHtmlForApiDoc(blog.getContent());
+            System.out.println(html);
+            blog.setContent(html);
+        }
         return blog;
     }
 }

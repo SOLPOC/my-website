@@ -1,6 +1,6 @@
 package ind.xyz.mywebsite.util.md;
 
-import com.vladsch.flexmark.ast.FencedCodeBlock;
+import com.vladsch.flexmark.ast.*;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.emoji.EmojiExtension;
 import com.vladsch.flexmark.ext.emoji.EmojiImageType;
@@ -18,8 +18,10 @@ import com.vladsch.flexmark.html.renderer.LinkResolverContext;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.ast.NodeVisitor;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import com.vladsch.flexmark.util.html.Attributes;
 import com.vladsch.flexmark.util.html.MutableAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,6 +74,24 @@ public class MdUtil {
             if (node instanceof FencedCodeBlock && part == AttributablePart.NODE) {
                 attributes.addValue("class", "line-numbers");
             }
+            if (node instanceof Heading && part == AttributablePart.NODE) {
+                attributes.addValue("class", "fw-bolder f-header");
+            }
+            if (node instanceof Paragraph && part == AttributablePart.NODE) {
+                attributes.addValue("class", "lh-base mt-2 fs-5 *preplaced*");
+                attributes.addValue("style","color:#666666;");
+            }
+            if (node instanceof Image && part == AttributablePart.NODE) {
+                attributes.addValue("class", "lh-base mt-2 fs-5 ");
+                attributes.addValue("src","data:image/png;base64, *imagereplaced*");
+            }
+            if (node instanceof ListBlock && part == AttributablePart.NODE) {
+                attributes.addValue("class", "rounded-0 ");
+            }
+            if (node instanceof ListItem && part == AttributablePart.NODE) {
+                attributes.addValue("class", "list-group-item");
+
+            }
         }
         static AttributeProviderFactory Factory() {
             return new IndependentAttributeProviderFactory() {
@@ -97,6 +117,8 @@ public class MdUtil {
             return new CodePreLineNumbersExtension();
         }
     }
+
+
 
 }
 

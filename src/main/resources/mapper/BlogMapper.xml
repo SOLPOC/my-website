@@ -57,7 +57,7 @@
             AND createTime = #{createTime}
         </if>
         <if test="tag != null and tag != ''">
-            AND tag = #{tag}
+            AND tag like CONCAT('%', #{tag}, '%')
         </if>
     </select>
 </mapper>
