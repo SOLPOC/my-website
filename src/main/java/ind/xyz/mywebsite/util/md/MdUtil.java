@@ -85,12 +85,9 @@ public class MdUtil {
                 attributes.addValue("class", "lh-base mt-2 fs-5 ");
                 attributes.addValue("src","data:image/png;base64, *imagereplaced*");
             }
-            if (node instanceof ListBlock && part == AttributablePart.NODE) {
-                attributes.addValue("class", "rounded-0 ");
-            }
             if (node instanceof ListItem && part == AttributablePart.NODE) {
-                attributes.addValue("class", "list-group-item");
-
+                attributes.addValue("class", "list-group-item fs-5");
+                attributes.addValue("style","color:#666666;");
             }
         }
         static AttributeProviderFactory Factory() {

@@ -12,6 +12,7 @@ import ind.xyz.mywebsite.util.ConvertUtil;
 import ind.xyz.mywebsite.util.file.FileUtil;
 import ind.xyz.mywebsite.util.md.Md2HtmlUtil;
 import ind.xyz.mywebsite.util.md.MdUtil;
+import jdk.jfr.Category;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,6 +57,39 @@ public class BlogServiceImpl implements BlogService {
         }else{
             return Result.fail();
         }
+    }
+
+    public Map<String, Map<String,Integer>> getTagCategoryLanguageMap(){
+        List<Blog> blogs = get(new Blog());
+        Map<String ,Integer> tagMap=new HashMap<>();
+        Map<String ,Integer> langMap=new HashMap<>();
+
+        Map<String ,Integer> categoryMap=new HashMap<>();
+        for(Blog blog:blogs){
+            String[] tags = blog.getTag().split(" ");
+            for(String tag:tags){
+                if(tagMap.containsKey(tag)){
+                    tagMap.put(tag,tagMap.get(tag)+1);
+                }else{
+                    tagMap.put(tag,1);
+                }
+            }
+            if(langMap.containsKey(blog.getLanguage())){
+                langMap.put(blog.getLanguage(),langMap.get(blog.getLanguage())+1);
+            }else{
+                langMap.put(blog.getLanguage(),1);
+            }
+            if(categoryMap.containsKey(blog.getCategory())){
+                categoryMap.put(blog.getCategory(),categoryMap.get(blog.getCategory())+1);
+            }else{
+                categoryMap.put(blog.getCategory(),1);
+            }
+        }
+        Map<String, Map<String,Integer>> res=new HashMap<>();
+        res.put("language",langMap);
+        res.put("category",categoryMap);
+        res.put("tag",tagMap);
+        return res;
     }
 
     public boolean backup(Blog blog,MultipartFile[] multipartFiles){
@@ -123,6 +154,7 @@ public class BlogServiceImpl implements BlogService {
         Blog blog = mapper.getBlogById(id);
         if(blog.getType().equals(".md")){
             String html = MdUtil.MdToHtmlForApiDoc(blog.getContent());
+            html.replace("*preplaced*",blog.getLanguage());
             System.out.println(html);
             blog.setContent(html);
         }
