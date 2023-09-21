@@ -7,6 +7,8 @@ import com.vladsch.flexmark.ext.emoji.EmojiImageType;
 import com.vladsch.flexmark.ext.emoji.EmojiShortcutType;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
+import com.vladsch.flexmark.ext.tables.TableCell;
+import com.vladsch.flexmark.ext.tables.TableRow;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.ext.toc.TocExtension;
 import com.vladsch.flexmark.html.AttributeProvider;
@@ -72,23 +74,47 @@ public class MdUtil {
         public void setAttributes(@NotNull Node node, @NotNull AttributablePart part, @NotNull MutableAttributes attributes) {
             // 定位到<pre>标签元素进行修改
             if (node instanceof FencedCodeBlock && part == AttributablePart.NODE) {
-                attributes.addValue("class", "line-numbers");
+                attributes.addValue("class", "line-numbers markdown-body");
             }
             if (node instanceof Heading && part == AttributablePart.NODE) {
-                attributes.addValue("class", "fw-bolder f-header");
+                attributes.addValue("class", "fw-bolder f-header mt-3");
+                attributes.addValue("style",".f-header {\n" +
+                        "  font-family: 'Arial', '黑体', 'Yu Gothic', sans-serif;\n" +
+                        "}");
             }
             if (node instanceof Paragraph && part == AttributablePart.NODE) {
-                attributes.addValue("class", "lh-base mt-2 fs-5 *preplaced*");
-                attributes.addValue("style","color:#666666;");
+                attributes.addValue("class", "lh-base mt-3 ");
+                attributes.addValue("style","*p_replaced* color:#333333;");
+//                attributes.addValue("style","color:#333333;");
             }
             if (node instanceof Image && part == AttributablePart.NODE) {
                 attributes.addValue("class", "lh-base mt-2 fs-5 ");
-                attributes.addValue("src","data:image/png;base64, *imagereplaced*");
+                attributes.addValue("src","data:image/png;base64, *image_replaced*");
             }
-            if (node instanceof ListItem && part == AttributablePart.NODE) {
-                attributes.addValue("class", "list-group-item fs-5");
-                attributes.addValue("style","color:#666666;");
+//            if (node instanceof ListItem && part == AttributablePart.NODE) {
+//                attributes.addValue("class", "list-group-item fs-5");
+//                attributes.addValue("style","color:#666666;");
+//            }
+            if (node instanceof ListBlock && part == AttributablePart.NODE) {
+                attributes.addValue("class", "list-group rounded-0");
+                attributes.addValue("style","color:#333333; *li_replaced*");
             }
+//            if (node instanceof BlockQuote && part == AttributablePart.NODE) {
+//                attributes.addValue("class", "markdown-body");
+//            }
+//            if (node instanceof CodeBlock && part == AttributablePart.NODE) {
+//                attributes.addValue("class", "markdown-body");
+//            }
+//            if (node instanceof TableCell && part == AttributablePart.NODE) {
+//                attributes.addValue("class", "markdown-body");
+//            }
+//            if (node instanceof TableRow && part == AttributablePart.NODE) {
+//                attributes.addValue("class", "markdown-body");
+//            }
+//            if (node instanceof ListItem && part == AttributablePart.NODE) {
+//                attributes.addValue("class", "markdown-body");
+//                attributes.addValue("style","color:#666666;");
+//            }
         }
         static AttributeProviderFactory Factory() {
             return new IndependentAttributeProviderFactory() {

@@ -59,5 +59,9 @@
         <if test="tag != null and tag != ''">
             AND tag like CONCAT('%', #{tag}, '%')
         </if>
+        <if test="title != null and title != ''">
+            AND title like CONCAT('%', #{title}, '%')
+        </if>
+        ORDER BY create_time DESC
     </select>
 </mapper>

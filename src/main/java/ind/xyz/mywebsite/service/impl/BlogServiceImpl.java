@@ -9,6 +9,7 @@ import ind.xyz.mywebsite.mapper.BlogMapper;
 import ind.xyz.mywebsite.mapper.MomentMapper;
 import ind.xyz.mywebsite.service.BlogService;
 import ind.xyz.mywebsite.util.ConvertUtil;
+import ind.xyz.mywebsite.util.HtmlUtil;
 import ind.xyz.mywebsite.util.file.FileUtil;
 import ind.xyz.mywebsite.util.md.Md2HtmlUtil;
 import ind.xyz.mywebsite.util.md.MdUtil;
@@ -26,6 +27,8 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class BlogServiceImpl implements BlogService {
@@ -154,10 +157,51 @@ public class BlogServiceImpl implements BlogService {
         Blog blog = mapper.getBlogById(id);
         if(blog.getType().equals(".md")){
             String html = MdUtil.MdToHtmlForApiDoc(blog.getContent());
-            html.replace("*preplaced*",blog.getLanguage());
-            System.out.println(html);
+            String style="mixed";
+            if(blog.getLanguage().equals("cn")){
+                style=" font-family:'Times New Roman', '宋体', sans-serif;";
+            }
+            if(blog.getLanguage().equals("ja")){
+                style=" font-family: 'Yu Mincho', sans-serif;";
+            }
+            if(blog.getLanguage().equals("en")){
+                style=" font-family: 'Times New Roman', sans-serif;";
+            }
+
+
+            html = html.replace("*p_replaced*", style);
+            html = html.replace("*li_replaced*", style);
+            html= HtmlUtil.wrapWithArticle(html);
             blog.setContent(html);
+
         }
         return blog;
+    }
+
+    public static String wrapWithArticle(String html) {
+        // 匹配 <blockquote>, <pre>, <table> 标签
+        String regex = "<(blockquote|pre|table)\\b[^>]*>(.*?)</\\1>";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(html);
+
+        StringBuilder wrappedHtml = new StringBuilder();
+        wrappedHtml.append("<article class=\"markdown-body\">");
+
+        int lastIndex = 0;
+        while (matcher.find()) {
+            // 添加 <article> 标签之前的内容
+            wrappedHtml.append(html.substring(lastIndex, matcher.start()));
+            // 包裹标签内容
+            wrappedHtml.append("<").append(matcher.group(1)).append(">")
+                    .append(matcher.group(2))
+                    .append("</").append(matcher.group(1)).append(">");
+            lastIndex = matcher.end();
+        }
+
+        // 添加剩余的内容
+        wrappedHtml.append(html.substring(lastIndex));
+        wrappedHtml.append("</article>");
+
+        return wrappedHtml.toString();
     }
 }

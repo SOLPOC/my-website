@@ -78,12 +78,12 @@ public class Md2HtmlUtil {
                 attributes.put("class", "ui celled table");
             }
             if(node instanceof Heading){
-                attributes.put("class","fw-bolder f-header");
+                attributes.put("class","fw-bolder f-header mt-3");
 
             }
             if(node instanceof Paragraph){
                 attributes.put("class","lh-base fs-5");
-                attributes.put("style","color:#666666;");
+                attributes.put("style","color:#333333;");
             }
         }
     }
