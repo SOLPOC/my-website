@@ -24,13 +24,13 @@ public class BlogController {
     @Autowired
     private BlogServiceImpl blogService;
     @PostMapping(value="/save",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void save(@RequestParam("data")String blogString, @RequestParam("files") MultipartFile[] files) throws IOException {
-//        MultipartFile[] multipartFiles=new MultipartFile[5];
-//        if(optionalMultipartFiles.isPresent()) {
-//            System.out.println(optionalMultipartFiles.get() );
-//            multipartFiles=optionalMultipartFiles.get();
-//        }
-        blogService.save(PropertiesUtil.parseQueryString(blogString), files);
+    public void save(@RequestParam("data")String blogString, @RequestParam("files") Optional<MultipartFile[]> optionalMultipartFiles) throws IOException {
+        MultipartFile[] multipartFiles=new MultipartFile[5];
+        if(optionalMultipartFiles.isPresent()) {
+            System.out.println(optionalMultipartFiles.get() );
+            multipartFiles=optionalMultipartFiles.get();
+        }
+        blogService.save(PropertiesUtil.parseQueryString(blogString), multipartFiles);
     }
 
     @PostMapping("/get")
