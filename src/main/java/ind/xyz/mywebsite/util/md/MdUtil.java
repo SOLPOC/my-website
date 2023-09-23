@@ -83,14 +83,14 @@ public class MdUtil {
                         "}");
             }
             if (node instanceof Paragraph && part == AttributablePart.NODE) {
-                attributes.addValue("class", "lh-base mt-3 ");
+                attributes.addValue("class", "lh-base mt-3 fs-5");
                 attributes.addValue("style","*p_replaced* color:#333333;");
 //                attributes.addValue("style","color:#333333;");
             }
-            if (node instanceof Image && part == AttributablePart.NODE) {
-                attributes.addValue("class", "lh-base mt-2 fs-5 ");
-                attributes.addValue("src","data:image/png;base64, *image_replaced*");
-            }
+//            if (node instanceof Image && part == AttributablePart.NODE) {
+//                attributes.addValue("class", "mt-3 w-75");
+//               attributes.addValue("src","data:image/png;base64, *image_replaced*");
+//            }
 //            if (node instanceof ListItem && part == AttributablePart.NODE) {
 //                attributes.addValue("class", "list-group-item fs-5");
 //                attributes.addValue("style","color:#666666;");

@@ -10,6 +10,8 @@ import ind.xyz.mywebsite.mapper.MomentMapper;
 import ind.xyz.mywebsite.service.BlogService;
 import ind.xyz.mywebsite.util.ConvertUtil;
 import ind.xyz.mywebsite.util.HtmlUtil;
+import ind.xyz.mywebsite.util.IOUtil;
+import ind.xyz.mywebsite.util.file.FileUploadUtil;
 import ind.xyz.mywebsite.util.file.FileUtil;
 import ind.xyz.mywebsite.util.md.Md2HtmlUtil;
 import ind.xyz.mywebsite.util.md.MdUtil;
@@ -45,8 +47,11 @@ public class BlogServiceImpl implements BlogService {
                     fileTransferProperty.getDirectory()+"/blog/"+blog.getId());
             if(blog.getType().equals(".txt")&&!StringUtils.hasLength(blog.getContent())){
                 blog.setContent(getContentFroMF(blog,multipartFiles));
-            }else if(blog.getType().equals(".md")&&!StringUtils.hasLength(blog.getContent())){
-                blog.setContent(getContentFroMF(blog,multipartFiles));
+            }else if(blog.getType().equals(".md")){
+                if(blog.getContent()==null) {
+                    blog.setContent(getContentFroMF(blog, multipartFiles));
+                }
+                saveResource(blog,multipartFiles);
             }
             blog.setCreateTime(LocalDateTime.now());
             blog.setUpdateTime(LocalDateTime.now());
@@ -106,10 +111,14 @@ public class BlogServiceImpl implements BlogService {
                 flag = FileUtil.uploadToServer(txt.get(), fileTransferProperty.getDirectory()+"/blog/", blog.getId()+".txt");
             }
         } else{
-            List<String> filenames = Arrays.stream(multipartFiles).map(x -> {
-                return x.getOriginalFilename().endsWith(".md")? blog.getId()+".md" : x.getOriginalFilename();
-            }).collect(Collectors.toList());
-            flag = FileUtil.BatchToServer(multipartFiles, fileTransferProperty.getDirectory()+"/blog/"+blog.getId(), ConvertUtil.objectArray2StringArray(filenames.toArray()));
+            if(blog.getContent()==null) {
+                List<String> filenames = Arrays.stream(multipartFiles).map(x -> {
+                    return x.getOriginalFilename().endsWith(".md") ? blog.getId() + ".md" : x.getOriginalFilename();
+                }).collect(Collectors.toList());
+                flag = FileUtil.BatchToServer(multipartFiles, fileTransferProperty.getDirectory() + "/blog/" + blog.getId(), ConvertUtil.objectArray2StringArray(filenames.toArray()));
+            }else{
+                flag= FileUtil.saveToServer(new ByteArrayInputStream(blog.getContent().getBytes()), fileTransferProperty.getDirectory()+"/blog/", blog.getId() + ".md");
+            }
         }
         return flag;
     }
@@ -124,15 +133,17 @@ public class BlogServiceImpl implements BlogService {
             inputStream.close();
             return string;
         }else{
-            Optional<MultipartFile> first = Arrays.stream(multipartFiles).filter(x -> {
-                return x.getOriginalFilename().endsWith(".md");
-            }).findFirst();
-            InputStream inputStream = first.get().getInputStream();
-            String string = ConvertUtil.inputStream2String(inputStream);
-            inputStream.close();
-            return string;
+            if(blog.getContent()==null) {
+                Optional<MultipartFile> first = Arrays.stream(multipartFiles).filter(x -> {
+                    return x.getOriginalFilename().endsWith(".md");
+                }).findFirst();
+                InputStream inputStream = first.get().getInputStream();
+                String string = ConvertUtil.inputStream2String(inputStream);
+                inputStream.close();
+                return string;
+            }
         }
-
+        return null;
     }
 
     public List<Blog> get(Blog blog){
@@ -141,17 +152,18 @@ public class BlogServiceImpl implements BlogService {
         List<Blog> blogs = mapper.get(blog);
         blogs.stream().forEach(x->{
             // Turn content into html if .md
-            if(x.getType().equals(".md")){
-                String html = MdUtil.MdToHtmlForApiDoc(x.getContent());
-                System.out.println(html);
-                x.setContent(html);
-            }
+//            if(x.getType().equals(".md")){
+//                String html = MdUtil.MdToHtmlForApiDoc(x.getContent());
+//                System.out.println(html);
+//                x.setContent(html);
+//            }
         });
         return blogs;
 
     }
 
     public Blog getBlogById(String id){
+
         SqlSession session = sqlSessionFactory.openSession();
         BlogMapper mapper = session.getMapper(BlogMapper.class);
         Blog blog = mapper.getBlogById(id);
@@ -167,7 +179,18 @@ public class BlogServiceImpl implements BlogService {
             if(blog.getLanguage().equals("en")){
                 style=" font-family: 'Times New Roman', sans-serif;";
             }
+            // Turn src link to base64
+            List<String> allFilenames = IOUtil.getAllFilenames("D:/test/"+fileTransferProperty.getBlogDirectory() + "/" + blog.getId());
+            if(allFilenames.size()!=0){
+                for(String filename:allFilenames){
+                    html = html.replaceFirst(filename,"data:image/png;base64,"+
+                            ConvertUtil.getImgStrToBase64("D:/test/"+fileTransferProperty.getBlogDirectory()+ "/"+blog.getId()+"/"+filename)
+                    );
 
+                }
+
+
+            }
 
             html = html.replace("*p_replaced*", style);
             html = html.replace("*li_replaced*", style);
@@ -203,5 +226,13 @@ public class BlogServiceImpl implements BlogService {
         wrappedHtml.append("</article>");
 
         return wrappedHtml.toString();
+    }
+    public boolean saveResource(Blog blog,MultipartFile[] multipartFiles) throws IOException {
+        String fileDirectory=fileTransferProperty.getBlogDirectory()+"/"+blog.getId();
+        boolean flag=true;
+            for (MultipartFile multipartFile : multipartFiles) {
+               flag=flag&& FileUtil.saveToServer(multipartFile.getInputStream(), fileDirectory, multipartFile.getOriginalFilename());
+            }
+        return flag;
     }
 }

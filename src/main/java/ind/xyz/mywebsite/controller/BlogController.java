@@ -4,14 +4,18 @@ import ind.xyz.mywebsite.domain.Blog;
 import ind.xyz.mywebsite.dto.Result;
 import ind.xyz.mywebsite.service.impl.BlogServiceImpl;
 import ind.xyz.mywebsite.util.JsonUtil;
+import ind.xyz.mywebsite.util.PropertiesUtil;
+import ind.xyz.mywebsite.util.md.MdUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/blog")
@@ -20,9 +24,13 @@ public class BlogController {
     @Autowired
     private BlogServiceImpl blogService;
     @PostMapping(value="/save",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void save(@RequestPart("data")String blogString, @RequestPart("file")MultipartFile[] multipartFiles) throws IOException {
-        // At front, there are two types file or text
-        blogService.save(JsonUtil.fromJson(blogString,Blog.class),multipartFiles);
+    public void save(@RequestParam("data")String blogString, @RequestParam("files") MultipartFile[] files) throws IOException {
+//        MultipartFile[] multipartFiles=new MultipartFile[5];
+//        if(optionalMultipartFiles.isPresent()) {
+//            System.out.println(optionalMultipartFiles.get() );
+//            multipartFiles=optionalMultipartFiles.get();
+//        }
+        blogService.save(PropertiesUtil.parseQueryString(blogString), files);
     }
 
     @PostMapping("/get")

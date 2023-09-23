@@ -1,5 +1,6 @@
 package ind.xyz.mywebsite.util;
 
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Scanner;
 
@@ -15,6 +16,11 @@ import java.net.URL;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
+import javax.imageio.ImageIO;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
 
 public class ConvertUtil {
     public static String[] objectArray2StringArray(Object[] objectArray) {
@@ -32,6 +38,31 @@ public class ConvertUtil {
             stringBuilder.append(scanner.nextLine());
         }
         return stringBuilder.toString();
+    }
+
+    public static String convertImageToBase64(String imagePath) {
+        String base64Image = "";
+        try {
+            File imageFile = new File(imagePath);
+// 读取图像文件
+            BufferedImage image = ImageIO.read(imageFile);
+
+// 创建一个字节数组输出流
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+// 将图像写入字节数组输出流，格式为PNG
+            ImageIO.write(image, "png", baos);
+
+// 执行Base64编码
+            byte[] imageBytes = baos.toByteArray();
+            base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+// 关闭字节数组输出流
+            baos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return base64Image;
     }
 
     public static String getImgStrToBase64(String imgStr) {

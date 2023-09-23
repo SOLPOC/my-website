@@ -10,7 +10,7 @@ public class HtmlUtil {
         Elements pres = doc.select("pre");
         Elements tables = doc.select("table");
         Elements lis = doc.select("li");
-
+        Elements imgs = doc.select("img");
         // 将 <blockquote>, <pre>, <table> 节点移动到 <article> 标签下
         for (Element blockquote : blockquotes) {
             Element article = doc.createElement("article");
@@ -30,7 +30,9 @@ public class HtmlUtil {
         for (Element li : lis) {
             li.addClass("list-group-item fs-5");
         }
-
+        for (Element img : imgs) {
+            img.addClass("mt-3 w-100");
+        }
         return doc.html();
     }
 }
