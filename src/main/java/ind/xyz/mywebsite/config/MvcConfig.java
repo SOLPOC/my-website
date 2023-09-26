@@ -42,7 +42,7 @@ public class MvcConfig implements WebMvcConfigurer {
         @Override
         public void addInterceptors(InterceptorRegistry registry) {
 //        registry.addInterceptor(new RefreshLoginInterceptor(stringRedisTemplate)).order(0);
-            registry.addInterceptor(new LoginInterceptor(stringRedisTemplate)).addPathPatterns( // Check user
+            registry.addInterceptor(new LoginInterceptor()).addPathPatterns( // Check user
                     "/blog/save",
                     "/blog/delete",
                     "/blog/modify"

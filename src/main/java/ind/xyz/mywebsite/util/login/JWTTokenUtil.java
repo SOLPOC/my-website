@@ -31,7 +31,7 @@ public class JWTTokenUtil {
         TOKEN_SECRET=env.getProperty("token-secret");
     }
 
-    private static final long EXPIRE_TIME= 60*60*1000; // One hour
+    private static final long EXPIRE_TIME= 60*60*1000*24; // One hour
     private static String TOKEN_SECRET="";  //密钥盐
 
     /**
