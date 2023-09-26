@@ -13,10 +13,10 @@ import javax.sql.DataSource;
 //@ConfigurationProperties(prefix = "spring.datasource")
 public class JdbcConfig {
     @Autowired
-    private  static DataSource dataSource;
+    private DataSource dataSource;
 
     @Bean
-    public static JdbcTemplate jdbcTemplate() {
+    public JdbcTemplate jdbcTemplate() {
         return new JdbcTemplate(dataSource);
     }
 

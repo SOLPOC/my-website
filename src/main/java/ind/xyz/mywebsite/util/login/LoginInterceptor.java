@@ -6,6 +6,7 @@ import ind.xyz.mywebsite.config.JdbcConfig;
 import ind.xyz.mywebsite.dto.UserDTO;
 import org.h2.engine.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,6 +27,8 @@ import java.util.Map;
 
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
+    @Value("${pass}")
+    String pass;
 //    @Autowired
 //    DataSource dataSource;
 //    @Autowired
@@ -78,13 +81,13 @@ public class LoginInterceptor implements HandlerInterceptor {
         if(!JWTTokenUtil.verify(token)){ // Invalid token
             return false;
         }
-        if(StrUtil.isBlank(token)){ // Not login
+/*        if(StrUtil.isBlank(token)){ // Not login
             return false;
-        }
+        }*/
 
         // Query in mysql
 //        String sql="select * from t_authorization where user='admin'";
-        UserDTO userDto =queryMysql(new JdbcTemplate());
+
 //                jdbcTemplate.query(sql, new ResultSetExtractor<UserDTO>() {
 //            @Override
 //            public UserDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -96,6 +99,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 //            }
 //        });
 
+/*
         LocalDateTime expiration=userDto.getLoginTime().toLocalDateTime().plusMinutes(60*24);
 
         if(expiration.isBefore(LocalDateTime.now())){
@@ -107,24 +111,9 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
 
         UserHolder.saveUser(userDto);
+*/
 
         return true;
-    }
-
-     public static UserDTO queryMysql(JdbcTemplate jdbcTemplate){
-        // Query in mysql
-        String sql="select * from t_authorization where user='admin'";
-        UserDTO userDto = jdbcTemplate.query(sql, new ResultSetExtractor<UserDTO>() {
-            @Override
-            public UserDTO extractData(ResultSet rs) throws SQLException, DataAccessException {
-                UserDTO userDTO = new UserDTO();
-                userDTO.setUsername(rs.getString("user"));
-                userDTO.setLoginTime(rs.getTimestamp("login_time"));
-                userDTO.setToken(rs.getString("token"));
-                return userDTO;
-            }
-        });
-        return userDto;
     }
 
     @Override

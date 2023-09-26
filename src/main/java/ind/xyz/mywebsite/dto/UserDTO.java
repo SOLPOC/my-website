@@ -6,9 +6,10 @@ import java.sql.Timestamp;
 
 @Data
 public class UserDTO {
-//    private String id;
+    private String id;
     private String username;
+    private String password;
 //    private String nickname;
-    private String token;
-    private Timestamp loginTime;
+//    private String token;
+//    private Timestamp loginTime;
 }
