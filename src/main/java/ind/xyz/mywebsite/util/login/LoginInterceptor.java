@@ -76,7 +76,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // Check login status by token
-        String token =request.getHeader("authorization");
+        String token =request.getHeader("Authorization");
         System.out.println(token);
         if(!JWTTokenUtil.verify(token)){ // Invalid token
             return false;
