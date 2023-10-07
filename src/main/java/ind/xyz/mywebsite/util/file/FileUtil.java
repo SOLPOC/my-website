@@ -41,7 +41,8 @@ public class FileUtil {
                 }
             }
             //构建文件输出流
-            outs = new FileOutputStream("D:/test/"+fileDirectory + File.separator+filename);
+//            outs = new FileOutputStream("D:/test/"+fileDirectory + "/"+filename);
+            outs = new FileOutputStream(fileDirectory + "/"+filename);
             int len;
             byte[] bytes = new byte[1024];
             //读取一个bytes的文件内容
@@ -79,7 +80,8 @@ public class FileUtil {
                 }
             }
             //构建文件输出流
-            outs = new FileOutputStream("D:/test/"+fileDirectory + File.separator+filename);
+//            outs = new FileOutputStream("D:/test/"+fileDirectory + File.separator+filename);
+            outs = new FileOutputStream(fileDirectory + File.separator+filename);
             outs.write(string.getBytes());
             outs.close();
             return true;
@@ -107,7 +109,8 @@ public class FileUtil {
 
         public static boolean uploadToServer(MultipartFile multipartFile, String fileDirectory, String filename) {
             // 构建文件对象
-            File file = new File(path+"/"+fileDirectory);
+//            File file = new File(path+"/"+fileDirectory);
+                        File file = new File(fileDirectory);
             // 文件目录不存在则递归创建目录
             if (!file.exists()) {
                 boolean mkdirs = file.mkdirs();
@@ -121,7 +124,8 @@ public class FileUtil {
                         //获取文件输入流
                         ins = multipartFile.getInputStream();
                         //构建文件输出流
-                        outs = new FileOutputStream("D:/test/" + fileDirectory + File.separator + filename);
+                        outs = new FileOutputStream( fileDirectory + File.separator + filename);
+//                    outs = new FileOutputStream("D:/test/" + fileDirectory + File.separator + filename);
                         int len;
                         byte[] bytes = new byte[1024];
                         //读取一个bytes的文件内容

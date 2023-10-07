@@ -108,16 +108,16 @@ public class BlogServiceImpl implements BlogService {
         }else if(blog.getType().equals(".txt")&& !StringUtils.hasLength(blog.getContent())){
             Optional<MultipartFile> txt = Arrays.asList(multipartFiles).stream().filter(x -> x.getOriginalFilename().endsWith(".txt")).findFirst();
             if(txt.get()!=null) {
-                flag = FileUtil.uploadToServer(txt.get(), fileTransferProperty.getDirectory()+"/blog/", blog.getId()+".txt");
+                flag = FileUtil.uploadToServer(txt.get(), fileTransferProperty.getDirectory()+"/blog", blog.getId()+".txt");
             }
         } else{
             if(blog.getContent()==null) {
                 List<String> filenames = Arrays.stream(multipartFiles).map(x -> {
                     return x.getOriginalFilename().endsWith(".md") ? blog.getId() + ".md" : x.getOriginalFilename();
                 }).collect(Collectors.toList());
-                flag = FileUtil.BatchToServer(multipartFiles, fileTransferProperty.getDirectory() + "/blog/" + blog.getId(), ConvertUtil.objectArray2StringArray(filenames.toArray()));
+                flag = FileUtil.BatchToServer(multipartFiles, fileTransferProperty.getDirectory() + "/blog" + blog.getId(), ConvertUtil.objectArray2StringArray(filenames.toArray()));
             }else{
-                flag= FileUtil.saveToServer(new ByteArrayInputStream(blog.getContent().getBytes()), fileTransferProperty.getDirectory()+"/blog/", blog.getId() + ".md");
+                flag= FileUtil.saveToServer(new ByteArrayInputStream(blog.getContent().getBytes()), fileTransferProperty.getDirectory()+"/blog", blog.getId() + ".md");
             }
         }
         return flag;
@@ -184,7 +184,8 @@ public class BlogServiceImpl implements BlogService {
             if(allFilenames.size()!=0){
                 for(String filename:allFilenames){
                     html = html.replaceFirst(filename,"data:image/png;base64,"+
-                            ConvertUtil.getImgStrToBase64("D:/test/"+fileTransferProperty.getBlogDirectory()+ "/"+blog.getId()+"/"+filename)
+//                            ConvertUtil.getImgStrToBase64("D:/test/"+fileTransferProperty.getBlogDirectory()+ "/"+blog.getId()+"/"+filename)
+                            ConvertUtil.getImgStrToBase64(fileTransferProperty.getBlogDirectory()+ "/"+blog.getId()+"/"+filename)
                     );
 
                 }
@@ -231,7 +232,9 @@ public class BlogServiceImpl implements BlogService {
         String fileDirectory=fileTransferProperty.getBlogDirectory()+"/"+blog.getId();
         boolean flag=true;
             for (MultipartFile multipartFile : multipartFiles) {
-               flag=flag&& FileUtil.saveToServer(multipartFile.getInputStream(), fileDirectory, multipartFile.getOriginalFilename());
+                if(multipartFile!=null) {
+                    flag = flag && FileUtil.uploadToServer(multipartFile, fileDirectory, multipartFile.getOriginalFilename());
+                }
             }
         return flag;
     }
